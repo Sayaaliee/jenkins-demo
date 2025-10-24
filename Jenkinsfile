@@ -27,3 +27,26 @@ pipeline {
 
         stage('Push to Docker Hub') {
             steps {
+                script {
+                    withCredentials([usernamePassword(
+                        credentialsId: 'dockerhub', 
+                        usernameVariable: 'DOCKERHUB_CREDENTIALS_USR', 
+                        passwordVariable: 'DOCKERHUB_CREDENTIALS_PSW'
+                    )]) {
+                        sh "echo $DOCKERHUB_CREDENTIALS_PSW | docker login -u $DOCKERHUB_CREDENTIALS_USR --password-stdin"
+                        sh "docker push $IMAGE_NAME:$IMAGE_TAG"
+                    }
+                }
+            }
+        }
+    }
+
+    post {
+        success {
+            echo "Docker image $IMAGE_NAME:$IMAGE_TAG pushed successfully!"
+        }
+        failure {
+            echo "Build failed!"
+        }
+    }
+}
