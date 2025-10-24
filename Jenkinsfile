@@ -9,7 +9,7 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                git 'https://github.com/sayaaliee/jenkins-demo.git'
+                git branch: 'main', url: 'https://github.com/sayaaliee/jenkins-demo.git'
             }
         }
 
@@ -27,28 +27,3 @@ pipeline {
 
         stage('Push to Docker Hub') {
             steps {
-                script {
-                    // Securely use Docker Hub credentials
-                    withCredentials([usernamePassword(
-                        credentialsId: 'dockerhub', 
-                        usernameVariable: 'DOCKERHUB_CREDENTIALS_USR', 
-                        passwordVariable: 'DOCKERHUB_CREDENTIALS_PSW'
-                    )]) {
-                        sh "echo $DOCKERHUB_CREDENTIALS_PSW | docker login -u $DOCKERHUB_CREDENTIALS_USR --password-stdin"
-                        sh "docker push $IMAGE_NAME:$IMAGE_TAG"
-                    }
-                }
-            }
-        }
-    }
-
-    post {
-        success {
-            echo "Docker image $IMAGE_NAME:$IMAGE_TAG pushed successfully!"
-        }
-        failure {
-            echo "Build failed!"
-        }
-    }
-}
-
